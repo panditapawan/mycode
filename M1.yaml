@@ -1,0 +1,30 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Template for Stack Update Notifications.
+
+Parameters:
+  CentralEventBusArn:
+    Type: String
+    Description: The default Event Bus Arn of Central Account
+    ConstraintDescription: "Must be valid arn ex: arn:aws:events:us-east-1:XXXXXXXXX:event-bus/default"
+
+
+Resources:
+  CloudWatchRule:
+    Type: 'AWS::Events::Rule' 
+    Properties:
+      Description: Cloudwatch rule to trigger lambda when update stack events occur.
+      EventPattern:
+        source:
+          - aws.cloudformation
+        detail-type:
+          - AWS API Call via CloudTrail
+        detail:
+          eventSource:
+            - cloudformation.amazonaws.com
+          eventName:
+            - UpdateStack
+      State: ENABLED
+      Targets:
+        - Id: CentralAccount
+          Arn: !Sub '${CentralEventBusArn}'
+	  RoleArn: Arn of the role used in managed account.
